@@ -67,7 +67,7 @@ fun BookListView(
                     ) {
                         // زر الفلترة (استدعاء الدالة من الـ ViewModel)
                         Button(
-                            onClick = { viewModel.filterLongBooks() },
+                            onClick = { viewModel.filterLongBooks },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("كتب فوق 400 صفحة", style = MaterialTheme.typography.labelSmall)
@@ -75,7 +75,7 @@ fun BookListView(
 
                         // زر عرض الكل (استدعاء دالة إعادة الضبط)
                         OutlinedButton(
-                            onClick = { viewModel.resetFilter() },
+                            onClick = { viewModel.resetFilter },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("عرض الكل", style = MaterialTheme.typography.labelSmall)
