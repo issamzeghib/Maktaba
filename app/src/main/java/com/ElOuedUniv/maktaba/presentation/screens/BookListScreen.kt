@@ -36,24 +36,56 @@ fun BookListScreen(
             )
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             } else {
                 if (books.isEmpty()) {
-                    EmptyBooksMessage(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    EmptyBooksMessage(modifier = Modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically))
                 } else {
+
+                    // --- إضافة أزرار التحكم هنا ---
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // زر الفلترة (استدعاء الدالة من الـ ViewModel)
+                        Button(
+                            onClick = { viewModel.filterLongBooks() },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("كتب فوق 400 صفحة", style = MaterialTheme.typography.labelSmall)
+                        }
+
+                        // زر عرض الكل (استدعاء دالة إعادة الضبط)
+                        OutlinedButton(
+                            onClick = { viewModel.resetFilter() },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("عرض الكل", style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+
+                    // سطر عدد الكتب
+                    Text(
+                        text = "إجمالي عدد الكتب المعروضة: ${books.size}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+
+                    // عرض القائمة تحت الأزرار والسطر
                     BookList(
                         books = books,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
