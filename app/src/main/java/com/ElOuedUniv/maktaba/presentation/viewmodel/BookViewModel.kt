@@ -9,29 +9,38 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for managing book-related UI state
+ * This follows the MVVM pattern where ViewModel acts as a bridge between
+ * the UI and the business logic (Use Cases)
+ */
 class BookViewModel(
     private val getBooksUseCase: GetBooksUseCase
 ) : ViewModel() {
 
+    // Private mutable state for internal use
     private val _books = MutableStateFlow<List<Book>>(emptyList())
+    
+    // Public immutable state for UI observation
     val books: StateFlow<List<Book>> = _books.asStateFlow()
 
+    // Loading state
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // متغير داخلي لحفظ القائمة الكاملة (حتى لا نضطر لتحميلها من جديد عند إلغاء الفلترة)
-    private var allBooks: List<Book> = emptyList()
-
     init {
+        // Load books when ViewModel is created
         loadBooks()
     }
 
+    /**
+     * Load all books from the use case
+     */
     private fun loadBooks() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val bookList = getBooksUseCase()
-                allBooks = bookList // حفظ النسخة الأصلية هنا
                 _books.value = bookList
             } finally {
                 _isLoading.value = false
@@ -40,19 +49,9 @@ class BookViewModel(
     }
 
     /**
-     * دالة لفلترة الكتب التي تتجاوز 400 صفحة
+     * Refresh the books list
+     * Can be called from UI to reload data
      */
-    fun filterLongBooks() {
-        _books.value = allBooks.filter { it.nbPages > 400 }
-    }
-
-    /**
-     * دالة لإعادة عرض جميع الكتب وإلغاء الفلترة
-     */
-    fun resetFilter() {
-        _books.value = allBooks
-    }
-
     fun refreshBooks() {
         loadBooks()
     }
