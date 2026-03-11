@@ -22,7 +22,7 @@ class CategoryRepositoryImpl : CategoryRepository {
         ),
         Category(
             id = "4",
-            name = "analysis",
+            name = "Analysis",
             description = "Books about analysis design and management"
         ),
         Category(
