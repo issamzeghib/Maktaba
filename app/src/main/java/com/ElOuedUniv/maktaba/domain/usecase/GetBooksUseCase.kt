@@ -1,13 +1,13 @@
 package com.ElOuedUniv.maktaba.domain.usecase
 
 import com.ElOuedUniv.maktaba.data.model.Book
-import com.ElOuedUniv.maktaba.data.repository.BookRepository
-import kotlinx.coroutines.flow.Flow
+import com.ElOuedUniv.maktaba.data.repository.BookRepositoryImpl
+
 
 class GetBooksUseCase(
-    private val bookRepository: BookRepository
+    private val bookRepository: BookRepositoryImpl
 ) {
-    operator fun invoke(): Flow<List<Book>> {
+    operator fun invoke(): List<Book> {
         return bookRepository.getAllBooks()
     }
 }

@@ -1,4 +1,4 @@
-package com.ElOuedUniv.maktaba.presentation.category
+package com.ElOuedUniv.maktaba.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,15 +7,14 @@ import com.ElOuedUniv.maktaba.domain.usecase.GetCategoriesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
-@HiltViewModel
-class CategoryViewModel @Inject constructor(private val getCategoriesUseCase: GetCategoriesUseCase) : ViewModel() {
-
+class CategoryViewModel(
+    private val getCategoriesUseCase: GetCategoriesUseCase
+) : ViewModel() {
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories.asStateFlow()
 
@@ -29,18 +28,32 @@ class CategoryViewModel @Inject constructor(private val getCategoriesUseCase: Ge
     private fun loadCategories() {
         viewModelScope.launch {
             _isLoading.value = true
-            getCategoriesUseCase()
-                .catch {
-                    _isLoading.value = false
-                }
-                .collect { categoryList ->
-                    _categories.value = categoryList
-                    _isLoading.value = false
-                }
+            try {
+                val categoryList = getCategoriesUseCase()
+                _categories.value = categoryList
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
-
     fun refreshCategories() {
         loadCategories()
+    }
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    val filteredCategories: StateFlow<List<Category>> = combine(_categories, _searchQuery) { categories, query ->
+        if (query.isEmpty()) {
+            categories
+        } else {
+
+            categories.filter { it.id.contains(query, ignoreCase = true) }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // دالة لتحديث نص البحث من الواجهة
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
     }
 }

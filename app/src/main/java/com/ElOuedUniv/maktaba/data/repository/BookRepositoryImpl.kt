@@ -1,39 +1,68 @@
 package com.ElOuedUniv.maktaba.data.repository
 
 import com.ElOuedUniv.maktaba.data.model.Book
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
 
-class BookRepositoryImpl @Inject constructor() : BookRepository {
+/**
+ * Repository for managing book data
+ * This follows the Repository pattern to abstract data sources
+ */
+class BookRepositoryImpl : BookRepository {
 
-    private val _booksList = listOf(
-        Book(isbn = "11111", title = "Clean Code", nbPages = 10),
-        Book(isbn = "22222", title = "The Pragmatic Programmer", nbPages = 0),
-        Book(isbn = "33333", title = "Design Patterns", nbPages = 0),
-        Book(isbn = "44444", title = "Refactoring", nbPages = 0),
-        Book(isbn = "55555", title = "Head First Design Patterns", nbPages = 0)
+    /**
+     * TODO for Students (TP1 - Exercise 1):
+     * Complete the book information for each book in the list below.
+     * Add the following information for each book:
+     * - isbn: Use a valid ISBN-13 format (e.g., "978-3-16-148410-0")
+     * - nbPages: Add the actual number of pages
+     *
+     * Example:
+     * Book(
+     *     isbn = "978-0-13-468599-1",
+     *     title = "Clean Code",
+     *     nbPages = 464
+     * )
+     */
+    private val booksList = listOf(
+        Book(isbn = "978-0-13-468599-1", title = "Clean Code", nbPages = 464),
+        Book(isbn = "978-0-13-595705-9", title = "The Pragmatic Programmer", nbPages = 352),
+        Book(isbn = "978-0-20-163361-0", title = "Design Patterns", nbPages = 395),
+        Book(isbn = "978-0-13-475759-9", title = "Refactoring", nbPages = 448),
+        Book(isbn = "978-1-49-198765-0", title = "Head First Design Patterns", nbPages = 672),
+        Book(isbn = "978-0-73-561967-8", title = "Code Complete", nbPages = 960),
+        Book(isbn = "978-1-44-932144-4", title = "Deep Work", nbPages = 304),
+        Book(isbn = "978-0-13-110362-7", title = "The C Programming Language", nbPages = 272),
+        Book(isbn = "978-0-262-03384-8", title = "Introduction to Algorithms (CLRS)", nbPages = 1312),
+        Book(isbn = "978-0-13-235088-4", title = "Clean Architecture", nbPages = 432)
     )
 
-    private val booksFlow = MutableSharedFlow<List<Book>>(replay = 1).apply {
-        tryEmit(_booksList)
-    }
-    
-    override fun getAllBooks(): Flow<List<Book>> = flow {
-        delay(2000) // Simulate delay
-        emitAll(booksFlow)
+    /**
+     * TODO for Students (TP1 - Exercise 2):
+     * Add 5 more books to the list above.
+     * Choose books related to Computer Science, Programming, or any topic you like.
+     * Remember to include complete information (ISBN, title, nbPages).
+     *
+     * Tip: You can find ISBN numbers for books on:
+     * - Google Books
+     * - Amazon
+     * - GoodReads
+     */
+
+    /**
+     * Get all books from the repository
+     * @return List of all books
+     */
+    override fun getAllBooks(): List<Book> {
+        return booksList
     }
 
+    /**
+     * Get a book by ISBN
+     * @param isbn The ISBN of the book to find
+     * @return The book if found, null otherwise
+     */
     override fun getBookByIsbn(isbn: String): Book? {
-        return _booksList.find { it.isbn == isbn }
-    }
-
-    override fun addBook(book: Book) {
-        // TODO: Exercise 2 - Implement adding a book to the list and emitting the new list
-        // Hint: This is a bit tricky with sharedFlow, think about how to update it.
+        return booksList.find { it.isbn == isbn }
     }
 }
+
 

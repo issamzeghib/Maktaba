@@ -1,16 +1,10 @@
 package com.ElOuedUniv.maktaba.data.repository
 
 import com.ElOuedUniv.maktaba.data.model.Category
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
 
-class CategoryRepositoryImpl @Inject constructor() : CategoryRepository {
+class CategoryRepositoryImpl : CategoryRepository {
 
-    private val _categoriesList = listOf(
+    private val categoriesList = listOf(
         Category(
             id = "1",
             name = "Programming",
@@ -25,19 +19,25 @@ class CategoryRepositoryImpl @Inject constructor() : CategoryRepository {
             id = "3",
             name = "Databases",
             description = "Books about database design and management"
-        )
+        ),
+        Category(
+            id = "4",
+            name = "Analysis",
+            description = "Books about analysis design and management"
+        ),
+        Category(
+            id = "5",
+            name = "Software engineering",
+            description = "Books about Software engineering design and management"
+        ),
+        // Add 2 more categories here
     )
 
-    private val categoriesFlow = MutableSharedFlow<List<Category>>(replay = 1).apply {
-        tryEmit(_categoriesList)
-    }
-    
-    override fun getAllCategories(): Flow<List<Category>> = flow {
-        delay(2000) // Simulate delay
-        emitAll(categoriesFlow)
+    override fun getAllCategories(): List<Category> {
+        return categoriesList
     }
 
     override fun getCategoryById(id: String): Category? {
-        return _categoriesList.find { it.id == id }
+        return categoriesList.find { it.id == id }
     }
 }

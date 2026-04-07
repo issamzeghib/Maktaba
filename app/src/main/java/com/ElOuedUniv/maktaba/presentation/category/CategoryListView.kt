@@ -1,29 +1,31 @@
-package com.ElOuedUniv.maktaba.presentation.category
+
+package com.ElOuedUniv.maktaba.presentation.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ElOuedUniv.maktaba.data.model.Category
-import com.ElOuedUniv.maktaba.presentation.category.CategoryViewModel
+import com.ElOuedUniv.maktaba.presentation.viewmodel.CategoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListView(
-    onBackClick: () -> Unit,
-    viewModel: CategoryViewModel = hiltViewModel()
+    viewModel: CategoryViewModel,
+    onBackClick: () -> Unit
 ) {
-    val categories by viewModel.categories.collectAsState()
+    // نجمع الحالات من الـ ViewModel هنا في الأعلى
+    val categories by viewModel.filteredCategories.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
@@ -45,30 +47,45 @@ fun CategoryListView(
             )
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp) // مسافة جانبية موحدة
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                if (categories.isEmpty()) {
-                    EmptyCategoriesMessage(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+            // 1. حقل البحث يوضع هنا (خارج القائمة ليبقى ثابتاً في الأعلى)
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { viewModel.onSearchQueryChanged(it) },
+                label = { Text("ابحث عن طريق الـ ID") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else {
-                    CategoryList(
-                        categories = categories,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (categories.isEmpty()) {
+                        EmptyCategoriesMessage(modifier = Modifier.align(Alignment.Center))
+                    } else {
+                        // 2. القائمة تعرض الأصناف المفلترة فقط
+                        CategoryList(
+                            categories = categories,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 fun CategoryList(
@@ -80,6 +97,16 @@ fun CategoryList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
+
+        item {
+            Text(
+                text = "إجمالي عدد الفئات المعروضة: ${categories.size}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 20.dp) // المسافة بين النص وأول فئة
+            )
+        }
         items(categories) { category ->
             CategoryItem(category = category)
         }
@@ -102,9 +129,9 @@ fun CategoryItem(category: Category) {
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = category.description,
                 style = MaterialTheme.typography.bodyMedium,
